@@ -133,7 +133,7 @@ class HomePage extends StatelessWidget {
           children: [
             Icon(icon, size: 50, color: Colors.blue),
             const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontSize: 18)),
+            Text(title, style: const TextStyle(fontSize: 18),textAlign: TextAlign.center,),
           ],
         ),
       ),

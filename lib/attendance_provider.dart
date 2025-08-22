@@ -1,4 +1,6 @@
-import 'package:attendance_scanner/course_model.dart';
+import 'dart:async';
+
+import 'package:attendance_scanner/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
@@ -10,10 +12,25 @@ class AttendanceProvider extends ChangeNotifier {
   final LocalAuthentication _localAuth = LocalAuthentication();
   DateTime _selectedDate = DateTime.now();
   bool _isBiometricAvailable = false;
+  final FirestoreService _firestoreService = FirestoreService();
+  StreamSubscription? _studentsSubscription;
 
   AttendanceProvider() {
-    _loadInitialData();
     initBiometrics();
+    _loadStudents();
+  }
+
+  void _loadStudents() {
+    _studentsSubscription = _firestoreService.getStudents().listen((students) {
+      _students = students;
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _studentsSubscription?.cancel();
+    super.dispose();
   }
 
   List<Student> get students => _students;
@@ -29,56 +46,6 @@ class AttendanceProvider extends ChangeNotifier {
       print("Error initializing biometrics: $e");
       _isBiometricAvailable = false;
     }
-  }
-
-  void _loadInitialData() {
-    _students = [
-      Student(
-        id: '1',
-        name: 'John Ike',
-        regNumber: '2022575001',
-        courses: [
-          Course(code: 'CSC 101', name: 'Intro to CS', attended: 14, total: 15),
-          Course(code: 'CSC 201', name: 'Data Structures', attended: 12, total: 15),
-        ],
-      ),
-      Student(
-        id: '2',
-        name: 'Mary Okechukwu',
-        regNumber: '2022575002',
-        courses: [
-          Course(code: 'CSC 101', name: 'Intro to CS', attended: 14, total: 15),
-          Course(code: 'CSC 201', name: 'Data Structures', attended: 12, total: 15),
-        ],
-      ),
-      Student(
-        id: '3',
-        name: 'Williams Eze',
-        regNumber: '2022575003',
-        courses: [
-          Course(code: 'CSC 101', name: 'Intro to CS', attended: 14, total: 15),
-          Course(code: 'CSC 201', name: 'Data Structures', attended: 12, total: 15),
-        ],
-      ),
-      Student(
-        id: '4',
-        name: 'Agu Ifeanyi',
-        regNumber: '2022575004',
-        courses: [
-          Course(code: 'CSC 101', name: 'Intro to CS', attended: 14, total: 15),
-          Course(code: 'CSC 201', name: 'Data Structures', attended: 12, total: 15),
-        ],
-      ),
-      Student(
-        id: '5',
-        name: 'Jide Ifeoluwa',
-        regNumber: '2022575005',
-        courses: [
-          Course(code: 'CSC 101', name: 'Intro to CS', attended: 14, total: 15),
-          Course(code: 'CSC 201', name: 'Data Structures', attended: 12, total: 15),
-        ],
-      ),
-    ];
   }
 
   Future<void> markAttendance(String studentId) async {
@@ -126,6 +93,9 @@ class AttendanceProvider extends ChangeNotifier {
           // Only mark if not already marked
           if (!(newAttendance[dateKey] ?? false)) {
             newAttendance[dateKey] = true;
+
+            await _firestoreService.updateAttendance(studentId, newAttendance);
+
             _students[studentIndex] = student.copyWith(attendance: newAttendance);
             notifyListeners();
 
@@ -153,21 +123,18 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   void addStudent(Student student) {
-    _students.add(student);
-    notifyListeners();
+    _firestoreService.addStudent(student);
   }
 
   void updateStudent(Student updatedStudent) {
     final index = _students.indexWhere((s) => s.id == updatedStudent.id);
     if (index != -1) {
       _students[index] = updatedStudent;
-      notifyListeners();
     }
   }
 
   void deleteStudent(String studentId) {
-    _students.removeWhere((s) => s.id == studentId);
-    notifyListeners();
+    _firestoreService.deleteStudent(studentId);
   }
 
 }

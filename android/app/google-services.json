@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "749098500441",
+    "project_id": "attendancescanner-a5bf4",
+    "storage_bucket": "attendancescanner-a5bf4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749098500441:android:657882c8fd79333e408c48",
+        "android_client_info": {
+          "package_name": "com.example.attendance_scanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQb6WlpzZy5xTqEnfevN-ZuAjdtUi_pQM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
