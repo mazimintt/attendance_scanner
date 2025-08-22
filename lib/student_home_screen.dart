@@ -9,8 +9,22 @@ class StudentHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final students = Provider.of<AttendanceProvider>(context).students;
+
+    // Check if students list is empty
+    if (students.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Student Dashboard'),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(), // Show loading indicator
+        ),
+      );
+    }
+
     // For simplicity, we'll use the first student as the logged-in student
-    final currentStudent = Provider.of<AttendanceProvider>(context).students.first;
+    final currentStudent = students.first;
 
     return Scaffold(
       appBar: AppBar(
